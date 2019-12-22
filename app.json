@@ -1,0 +1,15 @@
+{
+  "name": "Dr. Hans Von Humbot",
+  "description": "A telegram doctor who asks how you are doing.",
+  "image": "heroku/python",
+  "repository": "https://github.com/anbasile/howareyoubot",
+  "keywords": ["python", "nlp", "bot" ],
+  "env": {
+    "SECRET_KEY": {
+      "description": "The secret key for the Django application.",
+      "generator": "secret"
+    }
+  },
+  "environments": {}
+  }
+}
