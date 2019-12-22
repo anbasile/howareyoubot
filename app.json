@@ -3,5 +3,20 @@
   "description": "A telegram doctor who asks how you are doing.",
   "image": "heroku/python",
   "repository": "https://github.com/anbasile/howareyoubot",
-  "keywords": ["python", "nlp", "bot" ],
+  "keywords": ["python", "telegram" ],
+  "addons": [ ],
+  "env": {
+    "BOTKEY": {
+      "description": "The secret key for the TG bot.",
+      "generator": "secret"
+    }
+  },
+  "environments": {
+    "test": {
+      "scripts": {
+        "test-setup": "python manage.py collectstatic --noinput",
+        "test": "python manage.py test"
+      }
+    }
+  }
 }
