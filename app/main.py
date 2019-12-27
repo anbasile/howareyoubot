@@ -1,12 +1,14 @@
-import time
-import os
-from functools import wraps
-import sys
-import logging
+import random
 import argparse
-from telegram.ext import Updater
-from telegram.ext import CommandHandler
-from telegram.ext import MessageHandler, Filters
+import logging
+import os
+import sys
+import time
+from functools import wraps
+from pathlib import Path
+import telegram
+from telegram.ext import (CallbackContext, CommandHandler, Filters,
+                          MessageHandler, Updater)
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -14,6 +16,7 @@ logging.basicConfig(
 
 try:
     TOKEN = os.environ['BOTKEY']
+    MASTERUID = os.environ['MASTERUID']
 except KeyError:
     logging.warning('Token not found.')
     sys.exit(1)
@@ -21,6 +24,7 @@ except KeyError:
 
 PORT = int(os.environ.get('PORT', '8443'))
 updater = Updater(TOKEN, use_context=True)
+jobs = updater.job_queue
 
 dispatcher = updater.dispatcher
 
@@ -29,17 +33,37 @@ def start(update, context):
         chat_id=update.effective_chat.id, 
         text="Hi! Welcome: I am Dr. Humbot's assistant: the doctor will receive you soon.")
 
+answers = [
+    x.strip() for x in 
+    Path('./answers.txt').read_text().split('\n')]
+
 def rasa(chat_id, text):
-    return text
+    
+    return random.choice(answers)
 
 def reply(update, context):
     chat_id = update.effective_chat.id
     user_text = update.message.text
+
     bot_text = rasa(chat_id, user_text)
 
     context.bot.send_message(
         chat_id=chat_id,
-        text=bot_text)
+        text=bot_text,
+        parse_mode=telegram.ParseMode.MARKDOWN)
+
+questions = [
+    x.strip() for x in 
+    Path('./questions.txt').read_text().split('\n')]
+
+def ask(context: CallbackContext):
+    text = random.choice(questions)
+    context.bot.send_message(
+        chat_id=MASTERUID, 
+        text=text,
+        parse_mode=telegram.ParseMode.MARKDOWN)
+
+job_a = jobs.run_daily(ask, time=19)
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)

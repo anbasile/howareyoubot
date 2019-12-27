@@ -9,7 +9,12 @@
     "BOTKEY": {
       "description": "The secret key for the TG bot.",
       "generator": "secret"
+    },
+    "MASTERUID": {
+      "description": "The ID of the bot master.",
+      "generator": "secret"
     }
+
   },
   "environments": {
     "test": {
