@@ -1,1 +1,1 @@
-web: python ./app/main.py --heroku
+web: python ./app/main.py --webhook
