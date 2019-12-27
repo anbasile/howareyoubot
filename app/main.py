@@ -10,31 +10,42 @@ logging.basicConfig(
     level=logging.INFO)
 
 try:
-    token = os.environ['BOTKEY']
+    TOKEN = os.environ['BOTKEY']
 except KeyError:
     logging.warning('Token not found.')
     sys.exit(1)
-    
-updater = Updater(
-    token=token, 
-    use_context=True)
 
-dispatcher = updater.dispatcher
 
-def start(update, context):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text="I'm a bot, please talk to me!")
+def main():
+    PORT = int(os.environ.get('PORT', '8443'))
+    updater = Updater(TOKEN)
+    # add handlers
 
-def echo(update, context):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text=update.message.text)
+    dispatcher = updater.dispatcher
 
-start_handler = CommandHandler('start', start)
-dispatcher.add_handler(start_handler)
+    def start(update, context):
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, 
+            text="Hi! Welcome: I am Dr. Humbot's assistant: the doctor will receive you soon.")
 
-echo_handler = MessageHandler(Filters.text, echo)
-dispatcher.add_handler(echo_handler)
+    def reply(update, context):
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, 
+            text=update.message.text)
 
-updater.start_polling()
+    start_handler = CommandHandler('start', start)
+    dispatcher.add_handler(start_handler)
+
+    main_handler = MessageHandler(Filters.text, reply)
+    dispatcher.add_handler(main_handler)
+
+
+    updater.start_webhook(listen="0.0.0.0",
+                        port=PORT,
+                        url_path=TOKEN)
+    updater.bot.set_webhook("https://howareyoubot.herokuapp.com/" + TOKEN)
+    updater.idle()
+        
+
+if __name__ == '__main__':
+    main()
