@@ -21,6 +21,7 @@ except KeyError:
     logging.warning('Token not found.')
     sys.exit(1)
 
+patients = set()
 
 PORT = int(os.environ.get('PORT', '8443'))
 updater = Updater(TOKEN, use_context=True)
@@ -29,8 +30,11 @@ jobs = updater.job_queue
 dispatcher = updater.dispatcher
 
 def start(update, context):
+    chat_id = update.effective_chat
+    patients.update(chat_id)
+
     context.bot.send_message(
-        chat_id=update.effective_chat.id, 
+        chat_id=chat_id,
         text="Hi! Welcome: I am Dr. Humbot's assistant: the doctor will receive you soon.")
 
 answers = [
@@ -58,10 +62,11 @@ questions = [
 
 def ask(context: CallbackContext):
     text = random.choice(questions)
-    context.bot.send_message(
-        chat_id=MASTERUID, 
-        text=text,
-        parse_mode=telegram.ParseMode.MARKDOWN)
+    for patient in patients:
+        context.bot.send_message(
+            chat_id=patient, 
+            text=text,
+            parse_mode=telegram.ParseMode.MARKDOWN)
 
 job_a = jobs.run_daily(ask, time=19)
 
