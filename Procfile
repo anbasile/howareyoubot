@@ -1,1 +1,1 @@
-web: python ./app/main.py --webhook
+web: rasa run --port $PORT
